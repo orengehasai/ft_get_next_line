@@ -6,7 +6,7 @@
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 14:16:33 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 00:56:44 by takenakatak      ###   ########.fr       */
+/*   Updated: 2025/05/22 01:18:27 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ t_list	*lst_new(int fd)
 {
 	t_list	*res;
 
+	if (fd < 0)
+		return (NULL);
 	res = malloc(sizeof(t_list));
 	if (!res)
 		return (NULL);

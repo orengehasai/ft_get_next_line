@@ -6,13 +6,16 @@
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 14:16:24 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 00:56:47 by takenakatak      ###   ########.fr       */
+/*   Updated: 2025/05/22 01:11:40 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
-// # define BUFFER_SIZE 1024
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
 
 # include <unistd.h>
 # include <stdlib.h>

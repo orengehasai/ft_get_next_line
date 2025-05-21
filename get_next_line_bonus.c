@@ -6,7 +6,7 @@
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 03:31:51 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 00:56:50 by takenakatak      ###   ########.fr       */
+/*   Updated: 2025/05/22 01:29:20 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,6 @@ char	*get_next_line(int fd)
 	char			*res;
 
 	len = 0;
-	if (fd < 0)
-		return (NULL);
 	lst = lst_search(head, fd);
 	if (!lst)
 	{
