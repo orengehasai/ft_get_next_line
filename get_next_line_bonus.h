@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 14:16:24 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 00:56:42 by takenakatak      ###   ########.fr       */
+/*   Updated: 2025/05/22 00:56:47 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 // # define BUFFER_SIZE 1024
 
 # include <unistd.h>
@@ -34,7 +34,7 @@ t_list	*lst_new(int fd);
 
 void	lst_free(char *res, t_list *lst, t_list **head);
 
-ssize_t	str_len(char *str, int v);
+ssize_t	str_len(char *str);
 
 ssize_t	nulllen(char *str);
 
