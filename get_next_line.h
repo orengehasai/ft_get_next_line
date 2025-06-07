@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/15 14:16:24 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 01:11:58 by takenakatak      ###   ########.fr       */
+/*   Created: 2025/06/07 13:26:18 by takenakatak       #+#    #+#             */
+/*   Updated: 2025/06/07 16:08:20 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,38 +17,22 @@
 #  define BUFFER_SIZE 1024
 # endif
 
-# include <unistd.h>
 # include <stdlib.h>
-# include <fcntl.h>
+# include <unistd.h>
 
-typedef struct s_list
+typedef struct s_fd_data
 {
-	int				fd;
-	void			*content;
-	struct s_list	*next;
-	struct s_list	*back;
-}	t_list;
+	int					fd;
+	char				*remainder;
+	struct s_fd_data	*next;
+}	t_fd_data;
 
-t_list	*lst_search(t_list *lst, int fd);
+char		*get_next_line(int fd);
 
-void	lstadd_front(t_list **lst, t_list *new);
-
-t_list	*lst_new(int fd);
-
-void	lst_free(char *res, t_list *lst, t_list **head);
-
-ssize_t	str_len(char *str, int v);
-
-ssize_t	nulllen(char *str);
-
-int		is_consisted_n(char *str);
-
-void	*concat(char *str1, char *str2, ssize_t newlen);
-
-char	*fnc(ssize_t len, char *buf, ssize_t end, void **content);
-
-char	*read_line(t_list *lst, ssize_t len);
-
-char	*get_next_line(int fd);
+size_t		ft_strlen(const char *s);
+char		*ft_strchr(const char *s, int c);
+char		*ft_strjoin_and_free(char *s1, char *s2);
+void		free_and_null(char **ptr);
+void		free_node(t_fd_data **head, int fd);
 
 #endif

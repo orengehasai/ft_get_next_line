@@ -5,137 +5,115 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/21 03:31:51 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 01:29:20 by takenakatak      ###   ########.fr       */
+/*   Created: 2025/06/07 14:27:47 by takenakatak       #+#    #+#             */
+/*   Updated: 2025/06/07 16:11:18 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-int	is_consisted_n(char *str)
+static t_fd_data	*get_node(t_fd_data **head, int fd)
 {
-	while (*str)
+	t_fd_data	*node;
+
+	node = *head;
+	while (node)
 	{
-		if (*str == '\n')
-			return (1);
-		str++;
+		if (node->fd == fd)
+			return (node);
+		node = node->next;
 	}
-	return (0);
-}
-
-void	*concat(char *str1, char *str2, ssize_t newlen)
-{
-	char	*new;
-	char	*start;
-	char	*tmp;
-
-	new = malloc(sizeof(char) * (newlen + 1));
-	if (!new || !newlen)
-	{
-		if (new)
-			free(new);
-		if (str1)
-			free(str1);
+	node = malloc(sizeof(t_fd_data));
+	if (!node)
 		return (NULL);
-	}
-	start = new;
-	tmp = str1;
-	while (str1 && *str1 && newlen--)
-		*new++ = *str1++;
-	while (str2 && newlen--)
-		*new++ = *str2++;
-	*new = '\0';
-	if (tmp)
-		free(tmp);
-	return ((void *)start);
+	node->fd = fd;
+	node->remainder = NULL;
+	node->next = *head;
+	*head = node;
+	return (node);
 }
 
-char	*fnc(ssize_t len, char *buf, ssize_t end, void **content)
+static char	*extract_line(char **rem)
 {
-	char		*res;
-	char		*tmp;
-	ssize_t		buf_len;
+	char	*line;
+	char	*next_rem_start;
+	size_t	line_len;
 
-	if (buf)
-	{
-		buf_len = str_len(buf, 1);
-		res = concat(*content, buf, len);
-		if (end != buf_len + 1 && res)
-			*content = concat(NULL, &buf[buf_len + 1], end - (buf_len + 1));
-	}
-	else
-	{
-		tmp = *content;
-		res = concat(NULL, *content, len);
-		if (res)
-		{
-			buf_len = str_len(*content, 0) - len;
-			*content = concat(NULL, &((char *)*content)[len], buf_len);
-		}
-		free(tmp);
-	}
-	if (!res || end == buf_len + 1)
-		*content = NULL;
-	return (res);
+	if (!*rem || !**rem)
+		return (NULL);
+	next_rem_start = ft_strchr(*rem, '\n');
+	if (!next_rem_start)
+		return (line = *rem, *rem = NULL, line);
+	line_len = (next_rem_start - *rem) + 1;
+	line = malloc(sizeof(char) * (line_len + 1));
+	if (!line)
+		return (NULL);
+	line[line_len] = '\0';
+	while (line_len-- > 0)
+		line[line_len] = (*rem)[line_len];
+	next_rem_start = ft_strjoin_and_free(NULL, next_rem_start + 1);
+	free(*rem);
+	*rem = next_rem_start;
+	if (*rem && !**rem)
+		free_and_null(rem);
+	return (line);
 }
 
-char	*read_line(t_list *lst, ssize_t len)
+static int	read_into_remainder(int fd, char **remainder)
 {
-	char		buf[BUFFER_SIZE + 1];
-	ssize_t		end;
-	char		*res;
+	char	*buf;
+	ssize_t	bytes_read;
 
-	while (1)
+	if (ft_strchr(*remainder, '\n'))
+		return (0);
+	buf = malloc(sizeof(char) * ((size_t)BUFFER_SIZE + 1));
+	if (!buf)
+		return (-1);
+	bytes_read = 1;
+	while (bytes_read > 0)
 	{
-		end = read(lst->fd, buf, BUFFER_SIZE);
-		if (end == -1)
-			return (free(lst->content), lst->content = NULL, NULL);
-		else if (end == 0)
-		{
-			if (!lst->content)
-				return (NULL);
-			res = concat(lst->content, NULL, len);
-			return (lst->content = NULL, res);
-		}
-		buf[end] = '\0';
-		len += str_len(buf, 1);
-		if (is_consisted_n(buf))
-			return (fnc(++len, buf, end, &lst->content));
-		lst->content = concat(lst->content, buf, len);
-		if (!lst->content)
-			return (NULL);
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		if (bytes_read < 0)
+			return (free(buf), -1);
+		if (bytes_read == 0)
+			break ;
+		buf[bytes_read] = '\0';
+		*remainder = ft_strjoin_and_free(*remainder, buf);
+		if (!*remainder)
+			return (free(buf), -1);
+		if (ft_strchr(buf, '\n'))
+			break ;
 	}
+	return (free(buf), 0);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_list	*head = NULL;
-	t_list			*lst;
-	ssize_t			len;
-	char			*res;
+	static t_fd_data	*head;
+	t_fd_data			*node;
+	char				*line;
 
-	len = 0;
-	lst = lst_search(head, fd);
-	if (!lst)
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	node = get_node(&head, fd);
+	if (!node)
+		return (NULL);
+	if (read_into_remainder(fd, &node->remainder) < 0)
 	{
-		lst = lst_new(fd);
-		if (!lst)
-			return (NULL);
-		lstadd_front(&head, lst);
+		free_node(&head, fd);
+		return (NULL);
 	}
-	if (lst->content)
+	line = extract_line(&node->remainder);
+	if (!line)
 	{
-		len = str_len(lst->content, 0);
-		if (is_consisted_n(lst->content))
-		{
-			res = fnc(str_len(lst->content, 1) + 1, NULL, 0, &lst->content);
-			return (lst_free(res, lst, &head), res);
-		}
+		free_node(&head, fd);
+		return (NULL);
 	}
-	return (res = read_line(lst, len), lst_free(res, lst, &head), res);
+	return (line);
 }
 
 // # include <stdio.h>
+// # include <fcntl.h>
 
 // int main()
 // {
@@ -145,9 +123,9 @@ char	*get_next_line(int fd)
 // 	int fd4 = open("sample4",O_RDONLY);
 // 	int fd5 = open("sample5",O_RDONLY);
 
-// 	printf("%s",get_next_line(fd1));
+// 	printf("\033[0;32m%s",get_next_line(fd1));
 // 	printf("%s",get_next_line(fd2));
-// 	printf("%s",get_next_line(fd1));
+// 	printf("\033[0;32m%s",get_next_line(fd1));
 // 	printf("%s",get_next_line(fd1));
 // 	printf("%s",get_next_line(fd1));
 // 	printf("%s",get_next_line(fd2));

@@ -5,84 +5,101 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: takenakatakeshiichirouta <takenakatakes    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/15 14:16:33 by takenakatak       #+#    #+#             */
-/*   Updated: 2025/05/22 01:18:27 by takenakatak      ###   ########.fr       */
+/*   Created: 2025/06/07 14:26:26 by takenakatak       #+#    #+#             */
+/*   Updated: 2025/06/07 16:08:13 by takenakatak      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-t_list	*lst_search(t_list *lst, int fd)
+size_t	ft_strlen(const char *s)
 {
-	if (!lst)
-		return (lst);
-	while (lst && lst->fd != fd)
-		lst = lst->next;
-	return (lst);
+	size_t	i;
+
+	i = 0;
+	if (!s)
+		return (0);
+	while (s[i] != '\0')
+		i++;
+	return (i);
 }
 
-void	lstadd_front(t_list **lst, t_list *new)
+char	*ft_strchr(const char *s, int c)
 {
-	if (!lst || !new)
-		return ;
-	if (!*lst)
-		*lst = new;
-	else
-	{
-		new->next = *lst;
-		(*lst)->back = new;
-		*lst = new;
-	}
-}
+	char	uc;
 
-t_list	*lst_new(int fd)
-{
-	t_list	*res;
-
-	if (fd < 0)
+	uc = (unsigned char)c;
+	if (!s)
 		return (NULL);
-	res = malloc(sizeof(t_list));
-	if (!res)
+	while (*s)
+	{
+		if (*s == uc)
+			return ((char *)s);
+		s++;
+	}
+	if (uc == '\0')
+		return ((char *)s);
+	return (NULL);
+}
+
+char	*ft_strjoin_and_free(char *s1, char *s2)
+{
+	char	*new_str;
+	size_t	len1;
+	size_t	len2;
+	size_t	i;
+	size_t	j;
+
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	new_str = malloc(sizeof(char) * (len1 + len2 + 1));
+	if (!new_str)
+	{
+		free(s1);
 		return (NULL);
-	res->fd = fd;
-	res->content = NULL;
-	res->back = NULL;
-	res->next = NULL;
-	return (res);
+	}
+	i = 0;
+	j = 0;
+	while (i < len1)
+	{
+		new_str[i] = s1[i];
+		i++;
+	}
+	while (j < len2)
+		new_str[i++] = s2[j++];
+	new_str[i] = '\0';
+	return (free(s1), new_str);
 }
 
-void	lst_free(char *res, t_list *lst, t_list **head)
+void	free_and_null(char **ptr)
 {
-	if (!res && lst)
+	if (ptr && *ptr)
 	{
-		if (lst->back)
-		{
-			lst->back->next = lst->next;
-		}
-		else
-		{
-			*head = lst->next;
-		}
-		if (lst->next)
-			lst->next->back = lst->back;
-		free(lst);
+		free(*ptr);
+		*ptr = NULL;
 	}
 }
 
-ssize_t	str_len(char *str, int v)
+void	free_node(t_fd_data **head, int fd)
 {
-	int	cnt;
+	t_fd_data	*current;
+	t_fd_data	*prev;
 
-	cnt = 0;
-	if (v == 0)
+	current = *head;
+	prev = NULL;
+	while (current != NULL)
 	{
-		while (str[cnt] != '\0')
-			cnt++;
+		if (current->fd == fd)
+		{
+			if (prev == NULL)
+				*head = current->next;
+			else
+				prev->next = current->next;
+			free_and_null(&(current->remainder));
+			free(current);
+			return ;
+		}
+		prev = current;
+		current = current->next;
 	}
-	else
-	{
-		while (str[cnt] != '\n' && str[cnt] != '\0')
-			cnt++;
-	}
-	return (cnt);
 }
